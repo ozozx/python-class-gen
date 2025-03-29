@@ -1,7 +1,7 @@
 import os
 import sys
 
-OUTPRINT = True
+OUTPRINT = False
 
 def camelize(string):
 	words = string.split(' ')
@@ -77,9 +77,9 @@ def main():
 	print(os.path.join(os.getcwd(),f"{class_args['name'].lower().replace(' ','_')}.py")) if OUTPRINT else print('', end='')
 	if "inherit" in class_args:
 		print(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}") if OUTPRINT else print('', end='')
-		f.write(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}\n")
-	print(f"class {camelize(class_args['name'])}:") if OUTPRINT else print('', end='')
-	f.write(f"class {camelize(class_args['name'])}:\n")
+		f.write(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}\n\n")
+	print(f"class {camelize(class_args['name'])}{('('+camelize(class_args['inherit'])+')')*('inherit' in class_args)}:") if OUTPRINT else print('', end='')
+	f.write(f"class {camelize(class_args['name'])}{('('+camelize(class_args['inherit'])+')')*('inherit' in class_args)}:\n")
 	class_props = []
 	for v, k in class_args['props']:
 		class_props.append(v)
@@ -87,8 +87,8 @@ def main():
 	f.write(f"\n\tdef __init__(self{', '*(not inherit_args == '')}{inherit_args}{', '*('props' in class_args.keys())}{', '.join(class_props)}):\n")
 	del class_props
 	if not inherit_args == '':
-		print(f"\t\tsuper({inherit_args})") if OUTPRINT else print('', end='')
-		f.write(f"\t\tsuper({inherit_args})\n")
+		print(f"\t\tsuper().__init__({inherit_args})") if OUTPRINT else print('', end='')
+		f.write(f"\t\tsuper().__init__({inherit_args})\n")
 	if 'props' in class_args.keys():
 		for p, h in class_args['props']:
 			print(f"\t\tself.{'__'*h}{p} = {p}") if OUTPRINT else print('', end='')
