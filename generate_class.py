@@ -104,4 +104,4 @@ if __name__ == '__main__':
 		main()
 	except Exception as e:
 		print(str(e))
-	input()
+	input('Press Enter to generate the class.') if OUTPRINT else print('', end='')

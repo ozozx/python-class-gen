@@ -1,6 +1,9 @@
 # Python Class Generator
-A class generator for saving time
-
+A class generator for saving time.<br>
+To clone this repository enter the following into your commandline:
+```commandline
+git clone https://github.com/ozozx/python-class-gen.git
+```
 ## usage:
 run the script and follow the prompts, it will generate a class with a full constructor, getters, setters, and singular inheritance.<br>
 custom classes need to be in the same directory as the script to pull properties.<br>
@@ -14,6 +17,7 @@ generate_class.py <class name> [-inherit:<parent class>] [-show / -hide] <proper
 All properties are shown by default, and therefore have no getters / setters, all properties that are following a `-hide` modifier will be hidden and will have getters / setters until the next `-show` modifier.<br>
 The `-inherit:` modifier allows for one parent class to be specified. if the parent class file is present in the current working directory, the program will pull its properties automatically and send it to the `super()` constructor.
 
+Set the constant `OUTPRINT` within the script to `False` to not preview the class.
 ## Example:
 the following command:
 ```commandline
