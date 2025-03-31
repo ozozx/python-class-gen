@@ -91,8 +91,8 @@ def main():
 	f = open(os.path.join(os.getcwd(), f"{class_args['name'].lower().replace(' ', '_')}.py"), "w")
 	print(os.path.join(os.getcwd(),f"{class_args['name'].lower().replace(' ','_')}.py")) if OUTPRINT else print('', end='')
 	if 'inherit' in class_args.keys():
-		print(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}\n\nclass {camelize(class_args['name'])}({camelize(class_args['inherit'])}):") if OUTPRINT else print('', end='')
-		f.write(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}\n\nclass {camelize(class_args['name'])}({camelize(class_args['inherit'])}):\n")
+		print(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}\n\nclass {camelize(class_args['name'])}({camelize(class_args['inherit'])}):\n") if OUTPRINT else print('', end='')
+		f.write(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}\n\nclass {camelize(class_args['name'])}({camelize(class_args['inherit'])}):\n\n")
 	else:
 		abc_import = 'from abc import *\n\n'
 		print(f"{abc_import*class_args['abstract']}class {camelize(class_args['name'])}{'(ABC)'*class_args['abstract']}:") if OUTPRINT else print('', end='')

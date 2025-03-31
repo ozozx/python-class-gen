@@ -51,6 +51,7 @@ generate_class.py b -inherit:a -hide prop_4 -show prop_5
 will generate a file in `.\b.py` with the following contents:
 ```python
 from a import A
+
 class B(A):
 
         def __init__(self, prop_1, prop_2, prop_3, prop_4, prop_5):
