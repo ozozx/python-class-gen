@@ -26,6 +26,8 @@ def digest_args():
 				hide = True
 			elif arg[1:] == 'show':
 				hide = False
+			elif arg[1:] == 'abstract':
+				args_dict['abstract'] = True
 			else:
 				raise Exception("INVALID MODIFIER")
 		else:
@@ -36,16 +38,29 @@ def digest_args():
 			idx = idx+1
 	if len(props_list) > 0:
 		args_dict["props"] = props_list
+		if not "abstract" in args_dict.keys():
+			args_dict['abstract'] = False
+	if "inherit" in args_dict.keys() and args_dict['abstract']:
+		raise Exception("ABSTRACT CAN ONLY BE BASE CLASS")
 	return args_dict
 
 def main():
 	class_args = digest_args()
 	if not "name" in class_args.keys():
 		class_args["name"] = input("Enter Class name (lowercase with spaces if needed): ")
-	if (not "inherit" in class_args.keys()) and (not "props" in class_args.keys()):
+	if (not "inherit" in class_args.keys()) and (not "props" in class_args.keys()) and (not ("abstract" in class_args.keys() and class_args["abstract"])):
 		parent_ask = input("Do you want the class to inherit from a different class? Custom classes must be in the same directory.\npress Enter without typing to skip: ")
 		if not parent_ask == '':
 			class_args["inherit"] = parent_ask
+			class_args["abstract"] = False
+		elif not "abstract" in class_args.keys():
+			abs_ask = input("Do you want the class to be an abstract class? answer with ( Y / N ): ")
+			while not (abs_ask.lower().strip() == 'y' or abs_ask.lower().strip() == 'n'):
+				abs_ask = input("Invalid input, please answer with ( Y / N ): ")
+			if abs_ask.lower().strip() == 'y':
+				class_args["abstract"] = True
+			else:
+				class_args["abstract"] = False
 	if not "props" in class_args.keys():
 		print("Start naming properties for the class, properties are visible by default.\nWrite '-hide' to hide properties going forward and add getters and setters for access,\nwrite '-show' to make them visible again.")
 		hide = False
@@ -54,9 +69,9 @@ def main():
 			if prop == '' or prop.isspace():
 				break
 			elif prop[:1] == '-':
-				if arg[1:] == 'hide':
+				if prop[1:] == 'hide':
 					hide = True
-				elif arg[1:] == 'show':
+				elif prop[1:] == 'show':
 					hide = False
 				else:
 					raise Exception("INVALID MODIFIER")
@@ -76,19 +91,18 @@ def main():
 	f = open(os.path.join(os.getcwd(), f"{class_args['name'].lower().replace(' ', '_')}.py"), "w")
 	print(os.path.join(os.getcwd(),f"{class_args['name'].lower().replace(' ','_')}.py")) if OUTPRINT else print('', end='')
 	if 'inherit' in class_args.keys():
-		print(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}") if OUTPRINT else print('', end='')
-		f.write(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}\n\n")
-	if 'inherit' in class_args.keys():
-		print(f"class {camelize(class_args['name'])}({camelize(class_args['inherit'])}):") if OUTPRINT else print('', end='')
-		f.write(f"class {camelize(class_args['name'])}({camelize(class_args['inherit'])}):\n")
+		print(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}\n\nclass {camelize(class_args['name'])}({camelize(class_args['inherit'])}):") if OUTPRINT else print('', end='')
+		f.write(f"from {class_args['inherit'].lower().replace(' ','_')} import {camelize(class_args['inherit'])}\n\nclass {camelize(class_args['name'])}({camelize(class_args['inherit'])}):\n")
 	else:
-		print(f"class {camelize(class_args['name'])}:") if OUTPRINT else print('', end='')
-		f.write(f"class {camelize(class_args['name'])}:\n")
+		abc_import = 'from abc import *\n\n'
+		print(f"{abc_import*class_args['abstract']}class {camelize(class_args['name'])}{'(ABC)'*class_args['abstract']}:") if OUTPRINT else print('', end='')
+		f.write(f"{abc_import*class_args['abstract']}class {camelize(class_args['name'])}{'(ABC)'*class_args['abstract']}:\n")
 	class_props = []
 	for v, k in class_args['props']:
 		class_props.append(v)
-	print(f"\n\tdef __init__(self{', '*(not inherit_args == '')}{inherit_args}{', '*('props' in class_args.keys())}{', '.join(class_props)}):") if OUTPRINT else print('', end='')
-	f.write(f"\n\tdef __init__(self{', '*(not inherit_args == '')}{inherit_args}{', '*('props' in class_args.keys())}{', '.join(class_props)}):\n")
+	abc_import = '\n\t@abstractmethod'
+	print(f"{abc_import*class_args['abstract']}\n\tdef __init__(self{', '*(not inherit_args == '')}{inherit_args}{', '*('props' in class_args.keys())}{', '.join(class_props)}):") if OUTPRINT else print('', end='')
+	f.write(f"{abc_import*class_args['abstract']}\n\tdef __init__(self{', '*(not inherit_args == '')}{inherit_args}{', '*('props' in class_args.keys())}{', '.join(class_props)}):\n")
 	del class_props
 	if "inherit" in class_args.keys():
 		print(f"\t\tsuper().__init__({inherit_args})") if OUTPRINT else print('', end='')
@@ -108,4 +122,4 @@ if __name__ == '__main__':
 		main()
 	except Exception as e:
 		print(f"{type(e).__name__} {str(e)}")
-	input('Press Enter to generate the class.') if OUTPRINT else print('', end='')
+	input('Press Enter to close.') if OUTPRINT else print('', end='')
