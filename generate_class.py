@@ -20,6 +20,7 @@ def digest_args():
 			if arg[1:9] == 'inherit:':
 				if not "inherit" in args_dict.keys():
 					args_dict["inherit"] = arg[9:]
+					args_dict['abstract'] = False
 				else:
 					raise Exception("MULTIPLE INHERITANCE UNAVAILABLE")
 			elif arg[1:] == 'hide':
@@ -98,8 +99,9 @@ def main():
 		print(f"{abc_import*class_args['abstract']}class {camelize(class_args['name'])}{'(ABC)'*class_args['abstract']}:") if OUTPRINT else print('', end='')
 		f.write(f"{abc_import*class_args['abstract']}class {camelize(class_args['name'])}{'(ABC)'*class_args['abstract']}:\n")
 	class_props = []
-	for v, k in class_args['props']:
-		class_props.append(v)
+	if 'props' in class_args.keys():
+		for v, k in class_args['props']:
+			class_props.append(v)
 	abc_import = '\n\t@abstractmethod'
 	print(f"{abc_import*class_args['abstract']}\n\tdef __init__(self{', '*(not inherit_args == '')}{inherit_args}{', '*('props' in class_args.keys())}{', '.join(class_props)}):") if OUTPRINT else print('', end='')
 	f.write(f"{abc_import*class_args['abstract']}\n\tdef __init__(self{', '*(not inherit_args == '')}{inherit_args}{', '*('props' in class_args.keys())}{', '.join(class_props)}):\n")
