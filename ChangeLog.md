@@ -1,4 +1,6 @@
 # ChangeLog
+### <u>03/4/25</u>
++ modified camelize() to accomodate for snake_case input
 ### <u>31/3/25</u>
 + added abstract class support
 + added changelog

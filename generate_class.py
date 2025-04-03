@@ -4,7 +4,7 @@ import sys
 OUTPRINT = True
 
 def camelize(string):
-	words = string.split(' ')
+	words = string.replace('_',' ').split(' ')
 	for i, w in enumerate(words):
 		words[i] = w.capitalize()
 	return ''.join(words)
@@ -106,17 +106,21 @@ def main():
 	print(f"{abc_import*class_args['abstract']}\n\tdef __init__(self{', '*(not inherit_args == '')}{inherit_args}{', '*('props' in class_args.keys())}{', '.join(class_props)}):") if OUTPRINT else print('', end='')
 	f.write(f"{abc_import*class_args['abstract']}\n\tdef __init__(self{', '*(not inherit_args == '')}{inherit_args}{', '*('props' in class_args.keys())}{', '.join(class_props)}):\n")
 	del class_props
-	if "inherit" in class_args.keys():
-		print(f"\t\tsuper().__init__({inherit_args})") if OUTPRINT else print('', end='')
-		f.write(f"\t\tsuper().__init__({inherit_args})\n")
-	if 'props' in class_args.keys():
-		for p, h in class_args['props']:
-			print(f"\t\tself.{'__'*h}{p} = {p}") if OUTPRINT else print('', end='')
-			f.write(f"\t\tself.{'__'*h}{p} = {p}\n")
-		for p, h in class_args['props']:
-			if h:
-				print(f"\n\t@property\n\tdef {p}(self):\n\t\treturn self.__{p}\n\n\t@{p}.setter\n\tdef {p}(self, {p}):\n\t\tself.__{p} = {p}") if OUTPRINT else print('', end='')
-				f.write(f"\n\t@property\n\tdef {p}(self):\n\t\treturn self.__{p}\n\n\t@{p}.setter\n\tdef {p}(self, {p}):\n\t\tself.__{p} = {p}\n")
+	if (not "inherit" in class_args.keys()) and (not 'props' in class_args.keys()):
+		print("\t\tpass") if OUTPRINT else print('', end='')
+		f.write("\t\tpass\n")
+	else:
+		if "inherit" in class_args.keys():
+			print(f"\t\tsuper().__init__({inherit_args})") if OUTPRINT else print('', end='')
+			f.write(f"\t\tsuper().__init__({inherit_args})\n")
+		if 'props' in class_args.keys():
+			for p, h in class_args['props']:
+				print(f"\t\tself.{'__'*h}{p} = {p}") if OUTPRINT else print('', end='')
+				f.write(f"\t\tself.{'__'*h}{p} = {p}\n")
+			for p, h in class_args['props']:
+				if h:
+					print(f"\n\t@property\n\tdef {p}(self):\n\t\treturn self.__{p}\n\n\t@{p}.setter\n\tdef {p}(self, {p}):\n\t\tself.__{p} = {p}") if OUTPRINT else print('', end='')
+					f.write(f"\n\t@property\n\tdef {p}(self):\n\t\treturn self.__{p}\n\n\t@{p}.setter\n\tdef {p}(self, {p}):\n\t\tself.__{p} = {p}\n")
 	f.close()
 
 if __name__ == '__main__':
