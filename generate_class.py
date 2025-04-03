@@ -10,19 +10,16 @@ def camelize(string):
 	return ''.join(words)
 
 def digest_args():
-	idx = 1
+	is_name = True
 	args_dict = {}
 	hide = False
 	props_list = []
-	#inherit_list = []
+	method_list = []
+	inherit_list = []
 	for arg in sys.argv[1:]:
 		if arg[:1] == '-':
 			if arg[1:9] == 'inherit:':
-				if not "inherit" in args_dict.keys():
-					args_dict["inherit"] = arg[9:]
-					args_dict['abstract'] = False
-				else:
-					raise Exception("MULTIPLE INHERITANCE UNAVAILABLE")
+				inherit_list.append([arg[9:],'',[]])
 			elif arg[1:] == 'hide':
 				hide = True
 			elif arg[1:] == 'show':
@@ -32,11 +29,17 @@ def digest_args():
 			else:
 				raise Exception("INVALID MODIFIER")
 		else:
-			if idx == 1:
+			if is_name:
 				args_dict["name"] = arg
 			else:
-				props_list.append((arg.lower(),hide))
-			idx = idx+1
+				if arg.lower()[-2:] == '()':
+					method_list.append(arg.lower()[:-2])
+				else:
+					props_list.append((arg.lower(),hide))
+			is_name = False
+	if len(inherit_list) > 0:
+		args_dict['inherit'] = inherit_list
+		# args_dict['abstract'] = False
 	if len(props_list) > 0:
 		args_dict["props"] = props_list
 		if not "abstract" in args_dict.keys():
@@ -45,16 +48,21 @@ def digest_args():
 		raise Exception("ABSTRACT CAN ONLY BE BASE CLASS")
 	return args_dict
 
-def main():
+def dissect_parent(source):
+	if os.path.isfile(os.path.join(os.getcwd(), f"{source[0].lower().replace(' ', '_')}.py")):
+		f = open(os.path.join(os.getcwd(), f"{source[0].lower().replace(' ', '_')}.py"), "r")
+		for l in f.readlines():
+			if 'def __init__(self, ' in l:
+				inherit_args = l[l.find('def __init__(self, ') + len('def __init__(self, '):-3]
+				break
+		f.close()
+
+def pull_args():
 	class_args = digest_args()
 	if not "name" in class_args.keys():
 		class_args["name"] = input("Enter Class name (lowercase with spaces if needed): ")
 	if (not "inherit" in class_args.keys()) and (not "props" in class_args.keys()) and (not ("abstract" in class_args.keys() and class_args["abstract"])):
-		parent_ask = input("Do you want the class to inherit from a different class? Custom classes must be in the same directory.\npress Enter without typing to skip: ")
-		if not parent_ask == '':
-			class_args["inherit"] = parent_ask
-			class_args["abstract"] = False
-		elif not "abstract" in class_args.keys():
+		if not "abstract" in class_args.keys():
 			abs_ask = input("Do you want the class to be an abstract class? answer with ( Y / N ): ")
 			while not (abs_ask.lower().strip() == 'y' or abs_ask.lower().strip() == 'n'):
 				abs_ask = input("Invalid input, please answer with ( Y / N ): ")
@@ -62,6 +70,12 @@ def main():
 				class_args["abstract"] = True
 			else:
 				class_args["abstract"] = False
+		if not class_args['abstract']:
+			print("Do you want the class to inherit from a different class? Custom classes must be in the same directory.")
+			parent_ask = input("press Enter without typing to skip: ")
+			while not parent_ask == '':
+				class_args["inherit"].append([parent_ask,'',[]])
+				parent_ask = input("Keep typing for more inheritance,\npress Enter without typing to stop: ")
 	if not "props" in class_args.keys():
 		print("Start naming properties for the class, properties are visible by default.\nWrite '-hide' to hide properties going forward and add getters and setters for access,\nwrite '-show' to make them visible again.")
 		hide = False
@@ -81,14 +95,12 @@ def main():
 					class_args['props'].append((prop.replace(" ","_").lower(),hide))
 				else:
 					class_args['props'] = [(prop.replace(" ","_").lower(),hide)]
-	inherit_args = ''
-	if 'inherit' in class_args.keys() and os.path.isfile(os.path.join(os.getcwd(), f"{class_args['inherit'].lower().replace(' ', '_')}.py")):
-		f = open(os.path.join(os.getcwd(), f"{class_args['inherit'].lower().replace(' ', '_')}.py"),"r")
-		for l in f.readlines():
-			if 'def __init__(self, ' in l:
-				inherit_args = l[l.find('def __init__(self, ')+len('def __init__(self, '):-3]
-				break
-		f.close()
+	if 'inherit' in class_args.keys():
+
+	return class_args
+
+def main():
+	class_args = pull_args()
 	f = open(os.path.join(os.getcwd(), f"{class_args['name'].lower().replace(' ', '_')}.py"), "w")
 	print(os.path.join(os.getcwd(),f"{class_args['name'].lower().replace(' ','_')}.py")) if OUTPRINT else print('', end='')
 	if 'inherit' in class_args.keys():
