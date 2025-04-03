@@ -96,7 +96,7 @@ def pull_args():
 				else:
 					class_args['props'] = [(prop.replace(" ","_").lower(),hide)]
 	if 'inherit' in class_args.keys():
-
+		pass
 	return class_args
 
 def main():
