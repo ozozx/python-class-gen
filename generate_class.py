@@ -212,7 +212,7 @@ def main(logf):
 		strout_pipe('DEBUG: main(file open)',logf,True,DEBUG)
 		strout_pipe(os.path.join(os.getcwd(),f"{class_args['name'].lower().replace(' ','_')}.py"),logf,False,OUTPRINT)
 		abc_import = 'from abc import *'
-		strout_pipe(f"{abc_import[:-1]*class_args['abstract']}",logf,False,OUTPRINT,f)
+		strout_pipe(f"{abc_import*class_args['abstract']}",logf,False,OUTPRINT,f)
 		strout_pipe('DEBUG: main(file abstract?)',logf,True,DEBUG)
 		parent_list = []
 		enum_flag = False
